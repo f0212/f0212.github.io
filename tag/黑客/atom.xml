@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>http://zhyzhyzhy.cn</id>
+    <title>欢迎来到 fo 的网络安全小站 • Posts by &#34;黑客&#34; tag</title>
+    <link href="http://zhyzhyzhy.cn" />
+    <updated>2022-10-23T18:00:00.000Z</updated>
+    <category term="自动化" />
+    <category term="小工具" />
+    <category term="网络安全" />
+    <category term="JAVA安全" />
+    <category term="反序列化" />
+    <category term="技术干货" />
+    <category term="黑客" />
+    <category term="JAVA基础" />
+    <entry>
+        <id>http://zhyzhyzhy.cn/2022/10/24/JARM%E6%AC%BA%E9%AA%97/</id>
+        <title>JARM签名欺骗， 我现在是 Cobalt Strike 服务器！</title>
+        <link rel="alternate" href="http://zhyzhyzhy.cn/2022/10/24/JARM%E6%AC%BA%E9%AA%97/"/>
+        <content type="html">&lt;h1 id=&#34;jarm签名欺骗&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#jarm签名欺骗&#34;&gt;#&lt;/a&gt; JARM 签名欺骗&lt;/h1&gt;
+&lt;p&gt;JARM 是非常有用的指纹识别工具，但可以通过从其他服务重放服务器 hello 来欺骗。&lt;/p&gt;
+&lt;p&gt;JARM 扫描器是一种非常有效的系统指纹识别工具。它使用来自 TLS 握手的 Server Hello 响应来生成签名。然后可以使用这些来查找类似的软件或服务。非常适合查找 C2 或其他实施 TLS 的恶意服务器。因此，shodan.io 在其扫描仪中使用这种指纹识别机制也就不足为奇了。阅读&lt;a href=&#34;http://zhyzhyzhy.cn:7001/2022/10/24/JARM%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB/&#34;&gt; JARM 指纹识别&lt;/a&gt;相关的帖子，了解更过的知识。&lt;/p&gt;
+&lt;h2 id=&#34;那么问题来了是否有可能欺骗这些-jarm-签名让我们来了解一下&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#那么问题来了是否有可能欺骗这些-jarm-签名让我们来了解一下&#34;&gt;#&lt;/a&gt; 那么问题来了：是否有可能欺骗这些 JARM 签名？让我们来了解一下！&lt;/h2&gt;
+&lt;p&gt;我们知道，扫描 Cobalt Strike 服务器会产生以下签名 07d14d16d21d21d07c42d41d00041d24a458a375eef0c576d23a7bab9a9fb1&lt;/p&gt;
+&lt;p&gt;Cobalt Strike 博客中揭示了此签名不是 Cobalt Strike 特有的。无论如何，让我们仍然使用它作为起点。&lt;/p&gt;
+&lt;p&gt;首先，我可以使用资产测绘工具来查找具有匹配哈希的服务器。使用 jarmscan 对其进行了扫描，并创建了响应的数据包捕获。Wireshark 中的 ssl 握手 (filter:ssl.handshake.type == 1) 过滤器将显示扫描仪发送的所有 TLS 客户端 Hello。&lt;/p&gt;
+&lt;p&gt;&lt;img data-src=&#34;https://image.3001.net/images/20220525/1653481427_628e1fd3c9eeeb9ef30e9.png!small&#34; alt=&#34;12&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;反过来，“Cobalt Strike” 服务器将返回其服务器 Hello。jarmscan 将使用它们生成唯一的签名（filter:ssl.handshake.type==2）。&lt;/p&gt;
+&lt;p&gt;&lt;img data-src=&#34;https://image.3001.net/images/20220525/1653481415_628e1fc77d3fefa687987.png!small&#34; alt=&#34;&#34; /&gt;&lt;br /&gt;
+这些 Server Hello 是我们想要重放的数据包。这可以通过设置一个监听特定 Client Hello 的 TCP 服务器轻松完成，然后重播从所谓的 Cobalt Strike 服务器捕获的相应 Server Hello。一种相当方便但有效的方法。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;参考文章：&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly93d3cuZnJlZWJ1Zi5jb20vYXJ0aWNsZXMvd2ViLzMzNDI5OC5odG1s&#34;&gt;https://www.freebuf.com/articles/web/334298.html&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+</content>
+        <category term="网络安全" />
+        <category term="技术干货" />
+        <category term="黑客" />
+        <updated>2022-10-23T18:00:00.000Z</updated>
+    </entry>
+    <entry>
+        <id>http://zhyzhyzhy.cn/2022/10/24/JARM%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB/</id>
+        <title>JARM 指纹识别</title>
+        <link rel="alternate" href="http://zhyzhyzhy.cn/2022/10/24/JARM%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB/"/>
+        <content type="html">&lt;h2 id=&#34;介绍&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#介绍&#34;&gt;#&lt;/a&gt; 介绍：&lt;/h2&gt;
+&lt;p&gt;JARM 是一个活动的传输层安全 (TLS) 服务器指纹识别工具。&lt;/p&gt;
+&lt;p&gt;使用 JARM 进行扫描提供了识别和分组 Internet 上的恶意服务器的能力。&lt;/p&gt;
+&lt;p&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly9naXRodWIuY29tL3NhbGVzZm9yY2UvamFybQ==&#34;&gt;JARM tools&lt;/span&gt;&lt;/p&gt;
+&lt;h2 id=&#34;jarm-指纹可用于&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#jarm-指纹可用于&#34;&gt;#&lt;/a&gt; JARM 指纹可用于：&lt;/h2&gt;
+&lt;p&gt;快速验证组中的所有服务器是否具有相同的 TLS 配置。&lt;/p&gt;
+&lt;p&gt;通过配置对 Internet 上的不同服务器进行分组，例如，识别服务器可能属于 Google、Salesforce 和 Apple。&lt;/p&gt;
+&lt;p&gt;识别默认应用程序或基础架构。&lt;/p&gt;
+&lt;p&gt;识别 Internet 上的恶意软件命令和控制基础设施以及其他恶意服务器。&lt;/p&gt;
+&lt;h2 id=&#34;本文中您将了解到&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#本文中您将了解到&#34;&gt;#&lt;/a&gt; 本文中，您将了解到：&lt;/h2&gt;
+&lt;p&gt;JARM 是如何工作的。&lt;/p&gt;
+&lt;p&gt;如何使用 JARM 来识别恶意服务器。&lt;/p&gt;
+&lt;p&gt;从被动网络安全黑名单转变为主动网络安全黑名单。&lt;/p&gt;
+&lt;p&gt;如何将 JARM 部署到您的检测和响应管道中。&lt;/p&gt;
+&lt;p&gt;JARM 如何用于配置验证和应用程序识别。&lt;/p&gt;
+&lt;h2 id=&#34;jarm-的工作原理&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#jarm-的工作原理&#34;&gt;#&lt;/a&gt; JARM 的工作原理&lt;/h2&gt;
+&lt;figure class=&#34;highlight bash&#34;&gt;&lt;figcaption data-lang=&#34;bash&#34;&gt;&lt;/figcaption&gt;&lt;table&gt;&lt;tr&gt;&lt;td data-num=&#34;1&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;&lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;zhy@zhy jarm&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt;$ python jarm.py &lt;span class=&#34;token parameter variable&#34;&gt;-V&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;2&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;JARM version &lt;span class=&#34;token number&#34;&gt;1.0&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;3&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;&lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;zhy@zhy jarm&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt;$ python jarm.py &lt;span class=&#34;token parameter variable&#34;&gt;-h&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;4&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;usage: jarm.py &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-h&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-i INPUT&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-p PORT&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-v&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-V&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-o OUTPUT&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-j&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;-P PROXY&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;scan&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;5&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;6&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Enter an IP address and port to scan.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;7&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;8&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;positional arguments:&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;9&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  scan                  Enter an IP or domain to scan.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;10&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;11&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;options:&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;12&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  -h, &lt;span class=&#34;token parameter variable&#34;&gt;--help&lt;/span&gt;            show this &lt;span class=&#34;token builtin class-name&#34;&gt;help&lt;/span&gt; message and &lt;span class=&#34;token builtin class-name&#34;&gt;exit&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;13&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  &lt;span class=&#34;token parameter variable&#34;&gt;-i&lt;/span&gt; INPUT, &lt;span class=&#34;token parameter variable&#34;&gt;--input&lt;/span&gt; INPUT&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;14&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;                        Provide a list of IP addresses or domains to scan, one domain or IP address per line. Optional:&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;15&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;                        Specify port to scan with comma separation &lt;span class=&#34;token punctuation&#34;&gt;(&lt;/span&gt;e.g. &lt;span class=&#34;token number&#34;&gt;8.8&lt;/span&gt;.4.4,853&lt;span class=&#34;token punctuation&#34;&gt;)&lt;/span&gt;.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;16&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  &lt;span class=&#34;token parameter variable&#34;&gt;-p&lt;/span&gt; PORT, &lt;span class=&#34;token parameter variable&#34;&gt;--port&lt;/span&gt; PORT  Enter a port to scan &lt;span class=&#34;token punctuation&#34;&gt;(&lt;/span&gt;default &lt;span class=&#34;token number&#34;&gt;443&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;)&lt;/span&gt;.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;17&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  -v, &lt;span class=&#34;token parameter variable&#34;&gt;--verbose&lt;/span&gt;         Verbose mode: displays the JARM results before being hashed.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;18&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  -V, &lt;span class=&#34;token parameter variable&#34;&gt;--version&lt;/span&gt;         Print out version and exit.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;19&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  &lt;span class=&#34;token parameter variable&#34;&gt;-o&lt;/span&gt; OUTPUT, &lt;span class=&#34;token parameter variable&#34;&gt;--output&lt;/span&gt; OUTPUT&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;20&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;                        Provide a filename to output/append results to a CSV file.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;21&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  -j, &lt;span class=&#34;token parameter variable&#34;&gt;--json&lt;/span&gt;            Output ndjson &lt;span class=&#34;token punctuation&#34;&gt;(&lt;/span&gt;either to &lt;span class=&#34;token function&#34;&gt;file&lt;/span&gt; or stdout&lt;span class=&#34;token punctuation&#34;&gt;;&lt;/span&gt; overrides &lt;span class=&#34;token parameter variable&#34;&gt;--output&lt;/span&gt; defaults to CSV&lt;span class=&#34;token punctuation&#34;&gt;)&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;22&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;  &lt;span class=&#34;token parameter variable&#34;&gt;-P&lt;/span&gt; PROXY, &lt;span class=&#34;token parameter variable&#34;&gt;--proxy&lt;/span&gt; PROXY&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;23&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;                        To use a SOCKS5 proxy, provide address:port.&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;p&gt;在学习 JARM 的工作原理之前，了解 TLS 的工作原理很重要。TLS 及其前身 SSL 用于加密常见应用程序（如 Internet 浏览器）的通信，以确保数据安全，也用于加密恶意软件，因此它可以进行隐藏在噪声中。中要启动 TLS 会话，客户端将在 TCP 三次握手之后发送 TLS Client Hello 消息。此数据包及其生成方式取决于构建客户端应用程序时使用的包和方法。服务器如果接受 TLS 连接，将使用 TLS Server Hello 数据包进行响应。&lt;br /&gt;
+&lt;img data-src=&#34;https://image.3001.net/images/20220525/1653482074_628e225a76d41370b9f7d.gif!small&#34; alt=&#34;&#34; /&gt;&lt;br /&gt;
+TLS 服务器根据在 TLS 客户端 Hello 数据包中接收到的详细信息制定其服务器 Hello 数据包。根据应用程序或服务器的构建方式，服务器回复 Hello 的方式可能会有所不同，包括：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;    操作系统
+
+    操作系统版本
+
+    使用的库
+
+    使用的这些库的版本
+
+    调用库的顺序
+
+    自定义配置
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;所有这些因素导致每个 TLS 服务器以独特的方式响应。各种因素的组合使得不同组织部署的服务器不太可能有相同的响应。&lt;/p&gt;
+&lt;p&gt;下面是在&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly93aXJlc2hhcmsuY29tLw==&#34;&gt; Wireshark&lt;/span&gt; 中查看的 TLS 客户端 Hello 和服务器 Hello 的示例。&lt;br /&gt;
+&lt;img data-src=&#34;https://image.3001.net/images/20220525/1653481840_628e2170c35b715852943.png!small&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img data-src=&#34;https://image.3001.net/images/20220525/1653481847_628e2177e27d38ad629ca.png!small&#34; alt=&#34;&#34; /&gt;&lt;br /&gt;
+JARM 通过主动向目标 TLS 服务器发送 10 个 TLS 客户端 Hello 数据包并捕获 TLS 服务器 Hello 响应的特定属性来工作。然后以特定方式对聚合的 TLS 服务器响应进行哈希处理以生成 JARM 指纹。&lt;/p&gt;
+&lt;p&gt;JARM 中的 10 个 TLS 客户端 Hello 数据包经过特殊设计，可在 TLS 服务器中提取唯一响应。JARM 以不同的顺序发送不同的 TLS 版本、密码和扩展，以收集唯一的响应。服务器是否支持 TLS 1.3？ 它会与 1.2 密码协商 TLS 1.3 吗？如果我们将密码从最弱到最强排序，它会选择哪个密码？这些是 JARM 本质上要求服务器提取最独特的响应的不寻常问题的类型。然后对 10 个响应进行哈希处理以生成 JARM 指纹。&lt;/p&gt;
+&lt;figure class=&#34;highlight bash&#34;&gt;&lt;figcaption data-lang=&#34;bash&#34;&gt;&lt;/figcaption&gt;&lt;table&gt;&lt;tr&gt;&lt;td data-num=&#34;1&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;&lt;span class=&#34;token punctuation&#34;&gt;[&lt;/span&gt;zhy@zhy-f0 jarm&lt;span class=&#34;token punctuation&#34;&gt;]&lt;/span&gt;$ python jarm.py &lt;span class=&#34;token parameter variable&#34;&gt;-v&lt;/span&gt; baidu.com&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;2&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Domain: baidu.com&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;3&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Resolved IP: &lt;span class=&#34;token number&#34;&gt;220.181&lt;/span&gt;.38.251&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;4&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;JARM: 29d29d00029d29d1fc29d29d29d29d881e59db99b9f67f908be168829ecef9&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;5&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;1&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;http/1.1&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;ff01-000b-0023-0010,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;6&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;2&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;http/1.1&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;ff01-000b-0023-0010,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;7&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;3&lt;/span&gt;: &lt;span class=&#34;token operator&#34;&gt;||&lt;/span&gt;&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;8&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;4&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;||&lt;/span&gt;ff01-000b-0023,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;9&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;5&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;||&lt;/span&gt;ff01-000b-0023,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;10&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;6&lt;/span&gt;: c011&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0302&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;http/1.1&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;ff01-000b-0023-0010,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;11&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;7&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;http/1.1&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;ff01-000b-0023-0010,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;12&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;8&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;http/1.1&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;ff01-000b-0023-0010,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;13&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;9&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;http/1.1&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;ff01-000b-0023-0010,&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;14&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;Scan &lt;span class=&#34;token number&#34;&gt;10&lt;/span&gt;: c02f&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;0303&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;http/1.1&lt;span class=&#34;token operator&#34;&gt;|&lt;/span&gt;ff01-000b-0023-0010&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;p&gt;&lt;img data-src=&#34;https://image.3001.net/images/20220525/1653481819_628e215bd6ed388c654e2.png!small&#34; alt=&#34;&#34; /&gt;&lt;br /&gt;
+&lt;img data-src=&#34;https://image.3001.net/images/20220525/1653481826_628e2162959126319791b.png!small&#34; alt=&#34;&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;在收到每个 TLS 服务器问候消息后，JARM 会使用 FIN 优雅地关闭连接，以免套接字打开。&lt;/p&gt;
+&lt;h2 id=&#34;jarm-示例&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#jarm-示例&#34;&gt;#&lt;/a&gt; JARM 示例：&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Domain&lt;/th&gt;
+&lt;th&gt;JARM&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cDovL3NhbGVzZm9yY2UuY29t&#34;&gt;salesforce.com&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;2ad2ad0002ad2ad00042d42d00000069d641f34fe76acdc05c40262f8815e5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cDovL2ZvcmNlLmNvbQ==&#34;&gt;force.com&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;2ad2ad0002ad2ad00042d42d00000069d641f34fe76acdc05c40262f8815e5&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cDovL2dvb2dsZS5jb20=&#34;&gt;google.com&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;27d40d40d29d40d1dc42d43d00041d4689ee210389f4f6b4b5b1b93f92252d&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cDovL2ZhY2Vib29rLmNvbQ==&#34;&gt;facebook.com&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;27d40d40d29d40d1dc42d43d00041d4689ee210389f4f6b4b5b1b93f92252d&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cDovL2luc3RhZ3JhbS5jb20=&#34;&gt;instagram.com&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;27d27d27d29d27d1dc41d43d00041d741011a7be03d7498e0df05581db08a9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cDovL29jdWx1cy5jb20=&#34;&gt;oculus.com&lt;/span&gt;&lt;/td&gt;
+&lt;td&gt;27d27d27d29d27d1dc41d43d00041d741011a7be03d7498e0df05581db08a9&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;需要注意的是，JARM 是一种高性能指纹功能，不应将其视为或与安全加密功能混淆。&lt;/p&gt;
+&lt;h2 id=&#34;如何使用-jarm-识别恶意服务器&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#如何使用-jarm-识别恶意服务器&#34;&gt;#&lt;/a&gt; 如何使用 JARM 识别恶意服务器&lt;/h2&gt;
+&lt;p&gt;&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly93YW5nemhhbi4zNjAuY24vMjk2Lmh0bWw=&#34;&gt;https://wangzhan.360.cn/296.html&lt;/span&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本文转载：&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly93d3cuZnJlZWJ1Zi5jb20vc2VjdG9vbC8zMzQyOTkuaHRtbA==&#34;&gt;https://www.freebuf.com/sectool/334299.html&lt;/span&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+</content>
+        <category term="网络安全" />
+        <category term="技术干货" />
+        <category term="黑客" />
+        <updated>2022-10-23T17:00:00.000Z</updated>
+    </entry>
+</feed>
