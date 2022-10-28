@@ -3,7 +3,7 @@
     <id>http://zhyzhyzhy.cn</id>
     <title>欢迎来到 fo 的网络安全小站 • Posts by &#34;反序列化&#34; tag</title>
     <link href="http://zhyzhyzhy.cn" />
-    <updated>2022-10-22T16:00:00.000Z</updated>
+    <updated>2022-10-27T17:00:00.000Z</updated>
     <category term="自动化" />
     <category term="小工具" />
     <category term="网络安全" />
@@ -12,6 +12,74 @@
     <category term="技术干货" />
     <category term="黑客" />
     <category term="JAVA基础" />
+    <category term="漏洞复现" />
+    <entry>
+        <id>http://zhyzhyzhy.cn/2022/10/28/shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</id>
+        <title>shiro反序列化漏洞环境搭建</title>
+        <link rel="alternate" href="http://zhyzhyzhy.cn/2022/10/28/shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/"/>
+        <content type="html">&lt;h1 id=&#34;shiro反序列化漏洞分析起始篇&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#shiro反序列化漏洞分析起始篇&#34;&gt;#&lt;/a&gt; shiro 反序列化漏洞分析起始篇&lt;/h1&gt;
+&lt;h2 id=&#34;shiro框架&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#shiro框架&#34;&gt;#&lt;/a&gt; Shiro 框架&lt;/h2&gt;
+&lt;h3 id=&#34;框架介绍&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#框架介绍&#34;&gt;#&lt;/a&gt; 框架介绍&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Apache Shiro™ is a powerful and easy-to-use Java security framework that performs authentication, authorization, cryptography, and session management. With Shiro’s easy-to-understand API, you can quickly and easily secure any application – from the smallest mobile applications to the largest web and enterprise applications.&lt;br /&gt;
+Apache Shiro™是一个强大且易用的 Java 安全框架，能够用于身份验证、授权、加密和会话管理。Shiro 拥有易于理解的 API, 您可以快速、轻松地获得任何应用程序 —— 从最小的移动应用程序到最大的网络和企业应用程序。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;简而言之，Apache Shiro 是一个强大灵活的开源安全框架，可以完全处理身份验证、授权、加密和会话管理。&lt;/p&gt;
+&lt;h2 id=&#34;漏洞原理&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#漏洞原理&#34;&gt;#&lt;/a&gt; 漏洞原理&lt;/h2&gt;
+&lt;p&gt;Apache Shiro 框架提供了记住密码的功能（RememberMe），用户登录成功后会生成经过加密并编码的 cookie。在服务端对 rememberMe 的 cookie 值，先 base64 解码然后 AES 解密再反序列化，就导致了反序列化 RCE 漏洞。&lt;/p&gt;
+&lt;p&gt;在服务端接收 cookie 值时，按以下步骤解析：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;检索RemeberMe cookie的值
+
+Base64解码
+
+使用ACE解密（加密密钥硬编码）
+
+进行反序列化操作（未作过滤处理）
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Payload 过程：&lt;br /&gt;
+命令 =&amp;gt; 序列化 =&amp;gt;AES 加密 =&amp;gt;base64 编码 =&amp;gt;RememberMe Cookie 值&lt;/p&gt;
+&lt;p&gt;在整个漏洞利用过程中，比较重要的是 AES 加密的密钥，如果没有修改默认的密钥那么就很容易就知道密钥了，Payload 构造起来也是十分的简单。&lt;/p&gt;
+&lt;p&gt;总结一下：就是服务器在接收到 Client 的请求后会获取 Cookie 中的 RemeberMe 字段然后进行固定格式的解码然后对解码数据进行反序列化最终导致远程代码执行。&lt;/p&gt;
+&lt;h2 id=&#34;环境搭建&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#环境搭建&#34;&gt;#&lt;/a&gt; 环境搭建&lt;/h2&gt;
+&lt;p&gt;tomcat 8.5.76 &lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly90b21jYXQuYXBhY2hlLm9yZy8=&#34;&gt; (下载地址：Apache Tomcat® - Welcome!)&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;JDK 1.7 &lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly93d3cub3JhY2xlLmNvbS9qYXZhL3RlY2hub2xvZ2llcy9qYXZhc2UvamF2YXNlNy1hcmNoaXZlLWRvd25sb2Fkcy5odG1s&#34;&gt;（下载地址：Java Archive Downloads - Java SE 7）&lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;shiro 源码（下载地址：&lt;span class=&#34;exturl&#34; data-url=&#34;aHR0cHM6Ly9jb2RlbG9hZC5naXRodWIuY29tL2FwYWNoZS9zaGlyby96aXAvc2hpcm8tcm9vdC0xLjIuNCVFRiVCQyU4OQ==&#34;&gt;https://codeload.github.com/apache/shiro/zip/shiro-root-1.2.4）&lt;/span&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;tomcat 和 JDK 下载备用&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;下载shiro源码将压缩包解压后使用idea打开&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#下载shiro源码将压缩包解压后使用idea打开&#34;&gt;#&lt;/a&gt; 下载 shiro 源码，将压缩包解压后使用 IDEA 打开&lt;/h3&gt;
+&lt;p&gt;打开  &lt;code&gt;samples\web\pom.xml&lt;/code&gt; &lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/zODbxr5iRuNZc2f.png&#34; alt=&#34;shiro1.png&#34; /&gt;&lt;br /&gt;
+ 指定 javax.servlet 依赖包的版本为 1.2（如果不指定版本，会报无法解析 jsp 的 500 错误）&lt;/p&gt;
+&lt;figure class=&#34;highlight xml&#34;&gt;&lt;figcaption data-lang=&#34;XML&#34;&gt;&lt;/figcaption&gt;&lt;table&gt;&lt;tr&gt;&lt;td data-num=&#34;1&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;&lt;/span&gt;dependency&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;2&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;        &lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;&lt;/span&gt;groupId&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;javax.servlet&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;/&lt;/span&gt;groupId&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;3&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;        &lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;&lt;/span&gt;artifactId&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;jstl&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;/&lt;/span&gt;artifactId&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;4&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;        &lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;&lt;/span&gt;version&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;1.2&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;/&lt;/span&gt;version&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;5&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;        &lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;&lt;/span&gt;scope&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;runtime&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;/&lt;/span&gt;scope&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td data-num=&#34;6&#34;&gt;&lt;/td&gt;&lt;td&gt;&lt;pre&gt;    &lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token tag&#34;&gt;&lt;span class=&#34;token punctuation&#34;&gt;&amp;lt;/&lt;/span&gt;dependency&lt;/span&gt;&lt;span class=&#34;token punctuation&#34;&gt;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;p&gt;修改好后在 pom 文件右击然后选择重新加载 Maven 项目或者直接点击文件右上角的小标志&lt;/p&gt;
+&lt;h3 id=&#34;指定jdk&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#指定jdk&#34;&gt;#&lt;/a&gt; 指定 JDK&lt;/h3&gt;
+&lt;p&gt;打开项目结构，添加 SDK ，选择我们之前下载的 JDK1.7&lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/FjJarSlbfdEPZoy.png&#34; alt=&#34;jdk1.png&#34; /&gt;&lt;br /&gt;
+ 更改项目的 SDK&lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/cyJ1DzrLT8AuoYl.png&#34; alt=&#34;jdk2.png&#34; /&gt;&lt;/p&gt;
+&lt;h3 id=&#34;tomcat-配置&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#tomcat-配置&#34;&gt;#&lt;/a&gt; tomcat 配置&lt;/h3&gt;
+&lt;p&gt;点击右上角添加项目&lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/Qa3P9uLdyRGDx2s.png&#34; alt=&#34;2.png&#34; /&gt;&lt;br /&gt;
+ 添加一个本地的 Tomcat 项目&lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/iYOEV2ADMm81TXy.png&#34; alt=&#34;3.png&#34; /&gt;&lt;br /&gt;
+ 添加项目部署&lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/fLJTGYokj4ph1AK.png&#34; alt=&#34;4.png&#34; /&gt;&lt;br /&gt;
+ 选择 sample-web 项目&lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/V7eHjzYUZuPkCGq.png&#34; alt=&#34;5.png&#34; /&gt;&lt;br /&gt;
+&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/VoqruNiZcSvAmdP.png&#34; alt=&#34;6.png&#34; /&gt;&lt;br /&gt;
+ 确定后运行项目&lt;br /&gt;
+运行项目后可以在下面的服务小工具栏的服务看到服务部署情况&lt;br /&gt;
+如果打开项目成功那么会自动打开默认配置的浏览器&lt;/p&gt;
+&lt;p&gt;&lt;img data-src=&#34;https://s2.loli.net/2022/10/28/CfOBmnN4M1ZiLw7.png&#34; alt=&#34;7.png&#34; /&gt;&lt;/p&gt;
+&lt;h1 id=&#34;完结&#34;&gt;&lt;a class=&#34;anchor&#34; href=&#34;#完结&#34;&gt;#&lt;/a&gt; 完结&lt;/h1&gt;
+&lt;p&gt;下篇来分析为何会产生安安全问题&lt;/p&gt;
+</content>
+        <category term="网络安全" />
+        <category term="JAVA安全" />
+        <category term="反序列化" />
+        <category term="漏洞复现" />
+        <updated>2022-10-27T17:00:00.000Z</updated>
+    </entry>
     <entry>
         <id>http://zhyzhyzhy.cn/2022/10/23/%E5%85%B6%E4%BB%96CC/</id>
         <title>Java反序列化CommonsCollections篇(完结)</title>

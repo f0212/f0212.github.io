@@ -12,6 +12,7 @@
     <category term="技术干货" />
     <category term="黑客" />
     <category term="JAVA基础" />
+    <category term="漏洞复现" />
     <entry>
         <id>http://zhyzhyzhy.cn/2022/10/24/JARM%E6%AC%BA%E9%AA%97/</id>
         <title>JARM签名欺骗， 我现在是 Cobalt Strike 服务器！</title>
