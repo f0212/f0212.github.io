@@ -12,6 +12,10 @@
     <category term="技术干货" />
     <category term="黑客" />
     <category term="JAVA基础" />
+    <category term="Linux" />
+    <category term="CTF" />
+    <category term="打靶" />
+    <category term="hackMyVM" />
     <category term="漏洞复现" />
     <entry>
         <id>http://zhyzhyzhy.cn/2022/10/20/Java%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/</id>
